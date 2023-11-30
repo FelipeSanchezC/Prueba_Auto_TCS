@@ -1,0 +1,74 @@
+repositories{
+
+    mavenCentral()
+
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "net.serenity-bdd:serenity-gradle-plugin:2.4.34"
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'base'
+apply plugin: 'net.serenity-bdd.aggregator'
+
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+ext{
+    serenityVersion = '3.6.22'
+    serenityCucumberVersion = '3.1.16'
+    cucumberVersion = '7.1.0'
+    restassuredVersion = '4.2.0'
+    lombokVersion = '1.18.22'
+    restassuredVersion = '4.2.0'
+}
+
+
+dependencies{
+
+    implementation "net.serenity-bdd:serenity-core:$rootProject.ext.serenityVersion"
+    implementation "net.serenity-bdd:serenity-junit:$rootProject.ext.serenityVersion"
+    implementation "net.serenity-bdd:serenity-screenplay:$rootProject.ext.serenityVersion"
+    implementation "net.serenity-bdd:serenity-screenplay-webdriver:$rootProject.ext.serenityVersion"
+    implementation "net.serenity-bdd:serenity-cucumber:$rootProject.ext.serenityVersion"
+    implementation "net.serenity-bdd:serenity-screenplay-rest:$rootProject.ext.serenityVersion"
+    implementation "net.serenity-bdd:serenity-ensure:$rootProject.ext.serenityVersion"
+    implementation 'junit:junit:4.13.2'
+    implementation 'org.assertj:assertj-core:3.22.0'
+    implementation 'org.slf4j:slf4j-simple:2.0.0-alpha6'
+    implementation "io.cucumber:cucumber-core:$rootProject.ext.cucumberVersion"
+    implementation "io.cucumber:cucumber-junit:$rootProject.ext.cucumberVersion"
+    implementation "io.cucumber:cucumber-java:$rootProject.ext.cucumberVersion"
+    compileOnly "org.projectlombok:lombok:$rootProject.ext.lombokVersion"
+    annotationProcessor "org.projectlombok:lombok:$rootProject.ext.lombokVersion"
+    runtimeOnly 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:3.1'
+}
+
+test {
+    testLogging.showStandardStreams = true
+    testLogging.exceptionFormat = 'full'
+    systemProperties = System.properties as Map<String, ?>
+
+}
+
+tasks.withType(Test).configureEach {
+
+    systemProperties = System.properties as Map<String, ?>
+    maxParallelForks = Runtime.runtime.availableProcessors()
+    systemProperty 'file.encoding', 'UTF-8'
+
+}
+
+gradle.startParameter.continueOnFailure = true
+test.finalizedBy(aggregate)
